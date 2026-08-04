@@ -1,0 +1,26 @@
+# Build directories & binaries
+build/
+bin/
+out/
+*.exe
+*.dll
+*.so
+*.dylib
+*.a
+*.o
+*.obj
+
+# Generated runtime test files
+*.bin
+test_stream.bin
+
+# Editor / IDE metadata
+.vscode/
+.idea/
+*.swp
+*.user
+
+# System files
+Thumbs.db
+Desktop.ini
+.DS_Store

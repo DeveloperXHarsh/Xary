@@ -1,0 +1,39 @@
+====================================================================
+                        XARY BUILD GUIDE
+====================================================================
+
+PREREQUISITES:
+- MinGW-w64 (g++ compiler supporting C++20)
+- CMake 3.20+
+- Git Bash / Terminal
+
+--------------------------------------------------------------------
+QUICK ONE-COMMAND BUILD (Git Bash):
+--------------------------------------------------------------------
+  $ ./build.sh
+
+--------------------------------------------------------------------
+MANUAL COMPILATION STEPS:
+--------------------------------------------------------------------
+
+1. Step into the build directory (create if missing):
+   $ mkdir -p build
+   $ cd build
+
+2. Configure CMake with MinGW generator:
+   $ cmake -G "MinGW Makefiles" ..
+
+3. Compile the executable:
+   $ cmake --build .
+
+4. Run the application:
+   $ ./xary.exe
+
+--------------------------------------------------------------------
+CLEAN BUILD (In case of cache corruption):
+--------------------------------------------------------------------
+   $ cd build
+   $ rm -rf *
+   $ cmake -G "MinGW Makefiles" ..
+   $ cmake --build .
+====================================================================
