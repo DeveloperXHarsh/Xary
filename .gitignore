@@ -24,3 +24,6 @@ test_stream.bin
 Thumbs.db
 Desktop.ini
 .DS_Store
+
+# TESTs
+*.pdf

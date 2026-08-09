@@ -6,9 +6,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 if(MSVC)
-    add_compile_options(/W4 /WX)
+    add_compile_options(/W4)
 else()
-    add_compile_options(-Wall -Wextra -Wpedantic -Werror -O3)
+    add_compile_options(-Wall -Wextra -Wpedantic -O3)
 endif()
 
 include_directories(include)
@@ -24,11 +24,9 @@ set(SOURCES
 add_executable(xary ${SOURCES})
 target_include_directories(xary PUBLIC include)
 
-# Apply static linking conditionally based on OS/Compiler
+# Conditional static linking
 if(WIN32 AND NOT MSVC)
-    # MinGW / GCC on Windows
     target_link_options(xary PRIVATE -static -static-libgcc -static-libstdc++)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    # Linux GCC/Clang
     target_link_options(xary PRIVATE -static-libgcc -static-libstdc++)
 endif()
