@@ -18,6 +18,7 @@ set(SOURCES
     src/core/Stream.cpp
     src/core/StreamWriter.cpp
     src/core/BufferView.cpp
+    src/core/FileTypeDetector.cpp
     src/cli/ArgumentParser.cpp
 )
 

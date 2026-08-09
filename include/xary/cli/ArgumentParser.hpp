@@ -9,7 +9,8 @@ enum class Mode {
     Help,
     Version,
     Encode,
-    Decode
+    Decode,
+    Inspect
 };
 
 struct Options {
