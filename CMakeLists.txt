@@ -16,12 +16,12 @@ include_directories(include)
 set(SOURCES
     src/main.cpp
     src/core/Stream.cpp
+    src/cli/ArgumentParser.cpp
 )
 
 add_executable(xary ${SOURCES})
 target_include_directories(xary PUBLIC include)
 
-# Force static linking to eliminate Windows / Git Bash DLL version conflicts
 if(NOT MSVC)
     target_link_options(xary PRIVATE -static -static-libgcc -static-libstdc++)
 endif()

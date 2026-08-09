@@ -1,63 +1,79 @@
 #include <iostream>
-#include <fstream>
 #include <vector>
-#include <algorithm>
-#include <string_view>
 #include "../include/xary/core/Stream.hpp"
+#include "../include/xary/cli/ArgumentParser.hpp"
 
-constexpr std::string_view XARY_VERSION = "0.1.0";
-
-bool createDummyBinaryFile(const std::string& filename, std::size_t totalBytes) {
-    std::ofstream out(filename, std::ios::binary | std::ios::trunc);
-    if (!out.is_open()) {
-        return false;
-    }
-
-    std::vector<uint8_t> dummyData(64 * 1024, 0xAB);
-    std::size_t written = 0;
-    while (written < totalBytes) {
-        std::size_t toWrite = (std::min)(dummyData.size(), totalBytes - written);
-        out.write(reinterpret_cast<const char*>(dummyData.data()), static_cast<std::streamsize>(toWrite));
-        written += toWrite;
-    }
-    out.close();
-    return true;
-}
+using namespace xary;
 
 int main(int argc, char* argv[]) {
-    (void)argc;
-    (void)argv;
+    cli::Options options = cli::ArgumentParser::parse(argc, argv);
 
-    std::cout << "=== Xary Binary Engine v" << XARY_VERSION << " ===\n\n";
-
-    std::string dummyPath = "test_stream.bin";
-    if (!createDummyBinaryFile(dummyPath, 180 * 1024)) {
-        std::cerr << "❌ Error: Could not create test file on disk.\n";
+    if (!options.isValid) {
+        std::cerr << "❌ Error: " << options.errorMessage << "\n\n";
+        cli::ArgumentParser::printHelp();
         return 1;
     }
 
-    xary::core::Stream stream(dummyPath, 64 * 1024);
+    switch (options.mode) {
+        case cli::Mode::Help:
+            cli::ArgumentParser::printHelp();
+            return 0;
 
-    if (!stream.isOpen()) {
-        std::cerr << "❌ Error: Failed to open stream for " << dummyPath << "\n";
-        return 1;
+        case cli::Mode::Version:
+            cli::ArgumentParser::printVersion();
+            return 0;
+
+        case cli::Mode::Encode: {
+            std::string outPath = options.outputFile.empty() ? (options.inputFile + ".xary") : options.outputFile;
+            std::cout << "[+] Encoding file: " << options.inputFile << "\n";
+            std::cout << "[+] Output destination: " << outPath << "\n";
+
+            core::Stream stream(options.inputFile, 64 * 1024);
+            if (!stream.isOpen()) {
+                std::cerr << "❌ Error: Could not open source file '" << options.inputFile << "'\n";
+                return 1;
+            }
+
+            std::vector<uint8_t> buffer;
+            std::size_t totalBytes = 0;
+            std::size_t chunks = 0;
+
+            while (std::size_t bytesRead = stream.readChunk(buffer)) {
+                totalBytes += bytesRead;
+                chunks++;
+            }
+
+            std::cout << "✔ Successfully processed " << totalBytes << " bytes across " << chunks << " chunk(s).\n";
+            return 0;
+        }
+
+        case cli::Mode::Decode: {
+            std::string outPath = options.outputFile.empty() ? (options.inputFile + ".out") : options.outputFile;
+            std::cout << "[+] Decoding file: " << options.inputFile << "\n";
+            std::cout << "[+] Output destination: " << outPath << "\n";
+
+            core::Stream stream(options.inputFile, 64 * 1024);
+            if (!stream.isOpen()) {
+                std::cerr << "❌ Error: Could not open source file '" << options.inputFile << "'\n";
+                return 1;
+            }
+
+            std::vector<uint8_t> buffer;
+            std::size_t totalBytes = 0;
+            std::size_t chunks = 0;
+
+            while (std::size_t bytesRead = stream.readChunk(buffer)) {
+                totalBytes += bytesRead;
+                chunks++;
+            }
+
+            std::cout << "✔ Successfully decoded " << totalBytes << " bytes across " << chunks << " chunk(s).\n";
+            return 0;
+        }
+
+        case cli::Mode::None:
+        default:
+            cli::ArgumentParser::printHelp();
+            return 0;
     }
-
-    std::cout << "[+] Stream opened successfully!\n";
-    std::cout << "[+] File Size: " << stream.getFileSize() << " bytes\n";
-
-    std::vector<uint8_t> chunkBuffer;
-    std::size_t totalBytesRead = 0;
-    std::size_t chunkCount = 0;
-
-    while (std::size_t bytesRead = stream.readChunk(chunkBuffer)) {
-        totalBytesRead += bytesRead;
-        chunkCount++;
-    }
-
-    std::cout << "[+] Processed " << chunkCount << " chunk(s).\n";
-    std::cout << "[+] Total streamed: " << totalBytesRead << " bytes.\n\n";
-    std::cout << "✔ Stream test passed cleanly!\n";
-
-    return 0;
 }
