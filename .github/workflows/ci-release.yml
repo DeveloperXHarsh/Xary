@@ -4,7 +4,7 @@ on:
   push:
     branches: [ "main" ]
     tags:
-      - 'v*' # Triggers automatic release when pushing tags like v0.1.0
+      - 'v*'
   pull_request:
     branches: [ "main" ]
 
@@ -12,9 +12,6 @@ permissions:
   contents: write
 
 jobs:
-  # ---------------------------------------------------------------------------
-  # Job 1: Build & Verify across Windows, Linux, and macOS Matrix
-  # ---------------------------------------------------------------------------
   build:
     name: Build (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
@@ -24,13 +21,10 @@ jobs:
         include:
           - os: windows-latest
             artifact_name: xary-windows-x64.exe
-            binary_path: build/Release/xary.exe
           - os: ubuntu-latest
             artifact_name: xary-linux-x64
-            binary_path: build/xary
           - os: macos-latest
             artifact_name: xary-macos-x64
-            binary_path: build/xary
 
     steps:
       - name: 📥 Checkout Repository
@@ -42,22 +36,30 @@ jobs:
       - name: 🔨 Compile Binary
         run: cmake --build build --config Release
 
-      - name: 🧪 Test CLI Binary Output
+      - name: 🧪 Test CLI Binary Output & Prepare Artifact
         shell: bash
         run: |
-          if [ "${{ runner.os }}" == "Windows" ]; then
-            ./build/Release/xary.exe --version
-            ./build/Release/xary.exe --help
-          else
-            ./build/xary --version
-            ./build/xary --help
+          # Dynamically locate the built executable across OS generators
+          if [ -f "build/Release/xary.exe" ]; then
+            BIN="build/Release/xary.exe"
+          elif [ -f "build/xary.exe" ]; then
+            BIN="build/xary.exe"
+          elif [ -f "build/Release/xary" ]; then
+            BIN="build/Release/xary"
+          elif [ -f "build/xary" ]; then
+            BIN="build/xary"
           fi
 
-      - name: 📦 Prepare Release Artifact
-        shell: bash
-        run: |
+          echo "Found binary at: $BIN"
+          chmod +x "$BIN" 2>/dev/null || true
+          
+          # Run CLI smoke tests
+          "$BIN" --version
+          "$BIN" --help
+
+          # Package for upload
           mkdir -p dist
-          cp ${{ matrix.binary_path }} dist/${{ matrix.artifact_name }}
+          cp "$BIN" "dist/${{ matrix.artifact_name }}"
 
       - name: 📤 Upload Build Artifact
         uses: actions/upload-artifact@v4
@@ -65,9 +67,6 @@ jobs:
           name: ${{ matrix.os }}-build
           path: dist/*
 
-  # ---------------------------------------------------------------------------
-  # Job 2: Automatically Create GitHub Release (Triggered on Version Tags)
-  # ---------------------------------------------------------------------------
   release:
     name: 🚀 Publish GitHub Release
     needs: build

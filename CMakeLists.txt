@@ -17,12 +17,18 @@ set(SOURCES
     src/main.cpp
     src/core/Stream.cpp
     src/core/StreamWriter.cpp
+    src/core/BufferView.cpp
     src/cli/ArgumentParser.cpp
 )
 
 add_executable(xary ${SOURCES})
 target_include_directories(xary PUBLIC include)
 
-if(NOT MSVC)
+# Apply static linking conditionally based on OS/Compiler
+if(WIN32 AND NOT MSVC)
+    # MinGW / GCC on Windows
     target_link_options(xary PRIVATE -static -static-libgcc -static-libstdc++)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    # Linux GCC/Clang
+    target_link_options(xary PRIVATE -static-libgcc -static-libstdc++)
 endif()
