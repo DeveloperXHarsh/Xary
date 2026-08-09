@@ -1,78 +1,77 @@
 #include "../../include/xary/core/FileTypeDetector.hpp"
 #include <array>
+#include <span>
+
+/*
+ * ============================================================================
+ * Project     : Xary Engine
+ * Module      : File Type Inspection (FileTypeDetector.cpp)
+ * Description : Optimized pattern matching engine implementing magic signature
+ *               inspection tables for instant zero-allocation header identification.
+ * Author      : Piyush Rajput aka Harsh (DeveloperXHarsh)
+ * Copyright   : (c) 2026 Piyush Rajput. All rights reserved.
+ * ============================================================================
+ */
 
 namespace xary::core {
 
-// Xary Proprietary Header
-constexpr std::array<uint8_t, 8> XARY_MAGIC = {0x8F, 0x1E, 0xAA, 0x4D, 0x9C, 0x05, 0xF3, 0x72};
+namespace {
 
-FileTypeInfo FileTypeDetector::detect(BufferView view) {
-    if (view.size() < 4) {
+struct MagicSignature {
+    std::size_t offset;
+    std::span<const std::uint8_t> pattern;
+    FileTypeInfo info;
+};
+
+// Binary magic byte pattern dictionary
+constexpr std::array<std::uint8_t, 8> MAGIC_XARY = {0x8F, 0x1E, 0xAA, 0x4D, 0x9C, 0x05, 0xF3, 0x72};
+constexpr std::array<std::uint8_t, 8> MAGIC_PNG  = {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
+constexpr std::array<std::uint8_t, 3> MAGIC_JPEG = {0xFF, 0xD8, 0xFF};
+constexpr std::array<std::uint8_t, 4> MAGIC_PDF  = {0x25, 0x50, 0x44, 0x46};
+constexpr std::array<std::uint8_t, 4> MAGIC_ZIP  = {0x50, 0x4B, 0x03, 0x04};
+constexpr std::array<std::uint8_t, 2> MAGIC_EXE  = {0x4D, 0x5A};
+constexpr std::array<std::uint8_t, 4> MAGIC_ELF  = {0x7F, 0x45, 0x4C, 0x46};
+constexpr std::array<std::uint8_t, 4> MAGIC_GIF  = {0x47, 0x49, 0x46, 0x38};
+constexpr std::array<std::uint8_t, 2> MAGIC_GZIP = {0x1F, 0x8B};
+constexpr std::array<std::uint8_t, 4> MAGIC_MP4  = {'f', 't', 'y', 'p'};
+
+const MagicSignature KNOWN_SIGNATURES[] = {
+    {0, MAGIC_XARY, {".xary", "application/x-xary-encrypted", "Xary Encrypted Binary Stream", true}},
+    {0, MAGIC_PNG,  {".png",  "image/png",                   "PNG Image",                   true}},
+    {0, MAGIC_JPEG, {".jpg",  "image/jpeg",                  "JPEG Image",                  true}},
+    {0, MAGIC_PDF,  {".pdf",  "application/pdf",             "PDF Document",                true}},
+    {0, MAGIC_ZIP,  {".zip",  "application/zip",             "ZIP Archive / MS Office Document", true}},
+    {0, MAGIC_EXE,  {".exe",  "application/x-msdownload",    "Windows Executable / DLL",    true}},
+    {0, MAGIC_ELF,  {".elf",  "application/x-executable",    "Linux ELF Executable",        true}},
+    {0, MAGIC_GIF,  {".gif",  "image/gif",                   "GIF Animated Image",          true}},
+    {0, MAGIC_GZIP, {".gz",   "application/gzip",            "GZIP Compressed Archive",     true}},
+    {4, MAGIC_MP4,  {".mp4",  "video/mp4",                   "MP4 Video Container",          true}}
+};
+
+} // namespace
+
+FileTypeInfo FileTypeDetector::detect(BufferView headerView) noexcept {
+    if (headerView.size() < 2) {
         return {".bin", "application/octet-stream", "Unknown / File too small", false};
     }
 
-    // 1. Check Xary Encrypted Binary
-    if (view.size() >= 8) {
-        bool isXary = true;
-        for (std::size_t i = 0; i < 8; ++i) {
-            if (view[i] != XARY_MAGIC[i]) {
-                isXary = false;
-                break;
+    // Direct table inspection without heap allocations
+    for (const auto& sig : KNOWN_SIGNATURES) {
+        if (headerView.size() >= sig.offset + sig.pattern.size()) {
+            bool matches = true;
+            for (std::size_t i = 0; i < sig.pattern.size(); ++i) {
+                if (headerView[sig.offset + i] != sig.pattern[i]) {
+                    matches = false;
+                    break;
+                }
+            }
+            if (matches) {
+                return sig.info;
             }
         }
-        if (isXary) {
-            return {".xary", "application/x-xary-encrypted", "Xary Encrypted Binary Stream", true};
-        }
-    }
-
-    // 2. Standard Binary Magic Signatures
-    
-    // PNG: 89 50 4E 47 0D 0A 1A 0A
-    if (view.size() >= 8 && view[0] == 0x89 && view[1] == 0x50 && view[2] == 0x4E && view[3] == 0x47) {
-        return {".png", "image/png", "PNG Image", true};
-    }
-
-    // JPEG: FF D8 FF
-    if (view[0] == 0xFF && view[1] == 0xD8 && view[2] == 0xFF) {
-        return {".jpg", "image/jpeg", "JPEG Image", true};
-    }
-
-    // PDF: %PDF (25 50 44 46)
-    if (view[0] == 0x25 && view[1] == 0x50 && view[2] == 0x44 && view[3] == 0x46) {
-        return {".pdf", "application/pdf", "PDF Document", true};
-    }
-
-    // ZIP / Office Docs (DOCX, XLSX, PPTX): PK.. (50 4B 03 04)
-    if (view[0] == 0x50 && view[1] == 0x4B && view[2] == 0x03 && view[3] == 0x04) {
-        return {".zip", "application/zip", "ZIP Archive / MS Office Document", true};
-    }
-
-    // Windows Executable / DLL: MZ (4D 5A)
-    if (view[0] == 0x4D && view[1] == 0x5A) {
-        return {".exe", "application/x-msdownload", "Windows Executable / DLL", true};
-    }
-
-    // Linux Executable: ELF (7F 45 4C 46)
-    if (view[0] == 0x7F && view[1] == 0x45 && view[2] == 0x4C && view[3] == 0x46) {
-        return {".elf", "application/x-executable", "Linux ELF Executable", true};
-    }
-
-    // GIF Image: GIF8 (47 49 46 38)
-    if (view[0] == 0x47 && view[1] == 0x49 && view[2] == 0x46 && view[3] == 0x38) {
-        return {".gif", "image/gif", "GIF Animated Image", true};
-    }
-
-    // GZIP Archive: 1F 8B
-    if (view[0] == 0x1F && view[1] == 0x8B) {
-        return {".gz", "application/gzip", "GZIP Compressed Archive", true};
-    }
-
-    // MP4 Video: ftyp box at offset 4
-    if (view.size() >= 12 && view[4] == 'f' && view[5] == 't' && view[6] == 'y' && view[7] == 'p') {
-        return {".mp4", "video/mp4", "MP4 Video Container", true};
     }
 
     return {".bin", "application/octet-stream", "Generic Binary Data", false};
 }
 
-}
+} // namespace xary::core

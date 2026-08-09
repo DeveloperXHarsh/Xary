@@ -2,11 +2,11 @@
 
 # ⚡ XARY BINARY ENGINE
 
-**High-Throughput C++20 Chunked Stream Processing & Memory-Efficient Binary Core**
+**Zero-Allocation C++20 Stream Processing, SIMD Memory Inspection & Binary Transformation Pipeline**
 
 [![C++20](https://img.shields.io/badge/C%2B%2B-20-00599C?style=for-the-badge&logo=cplusplus&logoColor=white)](https://en.cppreference.com/w/cpp/20)
-[![CMake](https://img.shields.io/badge/CMake-4.4%2B-B22222?style=for-the-badge&logo=cmake&logoColor=white)](https://cmake.org/)
-[![Build](https://img.shields.io/badge/Build-Passing-2ea44f?style=for-the-badge&logo=github-actions&logoColor=white)](#)
+[![CMake](https://img.shields.io/badge/CMake-3.20%2B-B22222?style=for-the-badge&logo=cmake&logoColor=white)](https://cmake.org/)
+[![Developer](https://img.shields.io/badge/Developer-DeveloperXHarsh-663399?style=for-the-badge&logo=github&logoColor=white)](https://github.com/DeveloperXHarsh)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-black?style=for-the-badge&logo=windows&logoColor=white)](#)
 [![License](https://img.shields.io/badge/License-MIT-FFBF00.svg?style=for-the-badge)](#)
 
@@ -16,16 +16,20 @@
 
 ## 📌 Overview
 
-**Xary** is a lightweight, ultra-fast C++20 binary engine designed for streaming large data files through high-performance **64 KB chunk buffers**. Built with zero-overhead standard abstractions, Xary ensures predictable memory usage and cross-platform reliability without external runtime dependencies.
+**Xary Engine** is a high-performance C++20 binary execution framework engineered for zero-allocation stream processing, SIMD byte manipulation, and instant file format detection. 
+
+Operating on a strict **64 KB chunk footprint**, Xary processes multi-gigabyte binary files with deterministic memory consumption. It incorporates Link-Time Optimization (LTO/IPO), custom vector-unrolled stream ciphers, non-owning memory views (`std::span`), and a data-driven magic signature scanner.
 
 ---
 
-## 🔥 Key Features
+## 🔥 Modern Architecture Features
 
-* **🚀 High-Throughput Streaming**: Process multi-gigabyte binary files with a predictable 64 KB memory allocation footprint.
-* **🛡️ Static Runtime Linking**: Fully self-contained executable binaries compiled without external runtime DLL dependencies.
-* **⚡ Modern C++20 Core**: Built using strict modern compiler standards (`-Wall -Wextra -Wpedantic -Werror`).
-* **🛠️ One-Click Automation**: Complete shell automation (`build.sh`) for clean builds, configuration, and testing.
+* **🚀 Zero-Allocation Memory Slicing**: Instant $O(1)$ byte subview inspection powered by `BufferView` and `std::span<const uint8_t>` without dynamic memory allocations.
+* **⚡ Hardware SIMD Scanning**: Uses `std::memchr` assembly routines for high-throughput single-byte searches and `#pragma GCC unroll 16` cipher loop vectorization.
+* **🛡️ Magic Byte Inspection**: Table-driven pattern detector (`FileTypeDetector`) supporting non-owning `std::string_view` format signatures and offset-aware header matching (PNG, JPEG, PDF, MP4, EXE, ELF, etc.).
+* **📦 Stack-Allocated Move-Only I/O**: High-efficiency stream writer (`StreamWriter`) with stack-managed handle lifecycles, explicit flushing, and `[[nodiscard]]` return safety guarantees.
+* **⚙️ Zero-Copy CLI Parsing**: Subcommand parser (`ArgumentParser`) using `std::span` token iteration directly over `argv` without `std::vector<std::string>` dynamic conversions.
+* **🏭 Industrial Build System**: Modern CMake build with `CMAKE_INTERPROCEDURAL_OPTIMIZATION` (LTO), target-scoped generator flags, and `-march=native` hardware tuning.
 
 ---
 
@@ -33,41 +37,97 @@
 
 ```text
 xary/
+├── 📁 .github/             # GitHub Actions CI/CD workflows
 ├── 📁 include/
 │   └── 📁 xary/
+│       ├── 📁 cli/
+│       │   └── 📄 ArgumentParser.hpp
 │       └── 📁 core/
-│           └── 📄 Stream.hpp      # Core chunked stream reader interface
+│           ├── 📄 BufferView.hpp
+│           ├── 📄 FileTypeDetector.hpp
+│           ├── 📄 Stream.hpp
+│           └── 📄 StreamWriter.hpp
 ├── 📁 src/
+│   ├── 📁 cli/
+│   │   └── 📄 ArgumentParser.cpp
 │   ├── 📁 core/
-│   │   └── 📄 Stream.cpp          # Stream implementation & buffer logic
-│   └── 📄 main.cpp                # Engine entry point & driver test
-├── 📄 .gitignore                  # Source control exclusion rules
-├── 📄 build.sh                    # One-command build automation script
-├── 📄 CMakeLists.txt              # Cross-platform CMake configuration
-├── 📄 compile.txt                 # Build reference guide
-└── 📄 README.md                   # Project documentation
+│   │   ├── 📄 BufferView.cpp
+│   │   ├── 📄 FileTypeDetector.cpp
+│   │   ├── 📄 Stream.cpp
+│   │   └── 📄 StreamWriter.cpp
+│   └── 📄 main.cpp
+├── 📁 tests/               # Test suites and test fixtures
+├── 📄 .gitignore           # Source control exclusion rules
+├── 📄 build.sh             # Multi-threaded build automation script
+├── 📄 CMakeLists.txt       # Modern CMake configuration
+├── 📄 compile_flags.txt    # Language server & IntelliSense flags
+├── 📄 compiler.txt         # Compiler environment notes
+├── 📄 LICENSE              # MIT License file
+└── 📄 README.md            # Engine technical documentation
 ```
 
 ---
 
-## 💡 Quick API Example
+## 💻 Command Line Usage
+
+Xary features an integrated CLI toolset for encoding, decoding, and inspecting binary streams:
+
+```bash
+# Display general help menu
+xary --help
+
+# Inspect file magic bytes & MIME information
+xary -i corrupted_file.png
+
+# Encode binary file into chunked Xary stream
+xary -e input.bin -o output.xary
+
+# Decode Xary binary stream back to original format
+xary -d output.xary -o restored.bin
+```
+
+### 🎛️ Command Options Reference
+
+| Flag | Long Flag | Parameter | Description |
+| :--- | :--- | :--- | :--- |
+| `-h` | `--help` | — | Display help menu and command documentation |
+| `-v` | `--version` | — | Output engine version and build parameters |
+| `-e` | `--encode` | `<file>` | Encode binary stream using vector-unrolled stream cipher |
+| `-d` | `--decode` | `<file>` | Process/Decrypt Xary binary stream into output file |
+| `-i` | `--inspect` | `<file>` | Inspect binary header magic bytes & detect MIME format |
+| `-o` | `--output` | `<file>` | Specify target destination file path |
+
+---
+
+## 💡 C++20 Core API Example
 
 ```cpp
 #include "xary/core/Stream.hpp"
+#include "xary/core/StreamWriter.hpp"
+#include "xary/core/BufferView.hpp"
+#include "xary/core/FileTypeDetector.hpp"
 #include <iostream>
 
 int main() {
-    // Open a binary file with 64 KB chunk allocation
-    xary::core::Stream stream("data.bin", 64 * 1024);
+    // Open a 64 KB chunked binary reader
+    xary::core::Stream reader("data.bin", 64 * 1024);
+    if (!reader.isOpen()) return 1;
 
-    if (!stream.isOpen()) {
-        std::cerr << "Failed to open stream!" << std::endl;
-        return 1;
-    }
-
+    // Read first chunk and inspect magic signature
     std::vector<uint8_t> buffer;
-    while (std::size_t bytesRead = stream.readChunk(buffer)) {
-        // Process 64 KB chunk buffer in memory...
+    reader.readChunk(buffer);
+
+    xary::core::BufferView view(buffer);
+    xary::core::FileTypeInfo info = xary::core::FileTypeDetector::detect(view);
+
+    std::cout << "MIME Type    : " << info.mimeType << "\n";
+    std::cout << "Detected Ext : " << info.expectedExtension << "\n";
+
+    // Write chunk back using move-only stack writer
+    xary::core::StreamWriter writer("output.bin");
+    if (writer.isOpen()) {
+        writer.writeChunk(buffer);
+        writer.flush();
     }
 
     return 0;
@@ -76,50 +136,59 @@ int main() {
 
 ---
 
-## 🛠️ Building & Installation
+## 🛠️ Building & Automation
 
 ### 📋 Prerequisites
 
-| Requirement | Supported Versions |
-| :--- | :--- |
-| **Compiler** | GCC 10+ / Clang 11+ / MSVC 2019+ |
-| **Build System** | CMake 3.20+ |
-| **Environment** | Git Bash / Linux Shell / macOS Terminal |
+| Tool | Minimum Version | Recommended |
+| :--- | :--- | :--- |
+| **Compiler** | GCC 10+ / Clang 11+ / MSVC 2019+ | GCC 13+ / Clang 16+ (C++20 compliant) |
+| **Build System** | CMake 3.20+ | CMake 3.28+ |
+| **Environment** | Bash Shell / Git Bash / Terminal | Multi-core CPU for parallel builds |
 
 ---
 
-### ⚡ Option 1: Automated One-Command Build (Recommended)
+### ⚡ Option 1: Multi-Threaded Build Script (Recommended)
 
-Run the included build script to automatically configure, compile, and execute **Xary**:
+The included `build.sh` script automatically detects system CPU threads (`nproc`/`sysctl`) and compiles with parallel threads:
 
 ```bash
-# Make script executable (first time only)
-chmod +x build.sh
-
-# Run automated build pipeline
+# Basic parallel build & immediate run
 ./build.sh
+
+# Force clean workspace rebuild
+./build.sh --clean
+
+# Compile with Debug symbols
+./build.sh --debug
+
+# Compile target without running executable
+./build.sh --no-run
 ```
 
 ---
 
-### 🔧 Option 2: Manual CMake Build
+### 🔧 Option 2: Manual CMake Pipeline
 
 ```bash
-# Create and step into build directory
+# Create build directory
 mkdir -p build && cd build
 
-# Configure CMake with MinGW generator
-cmake -G "MinGW Makefiles" ..
+# Configure CMake build system
+cmake -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release ..
 
-# Compile binary target
-cmake --build .
+# Compile target with full CPU thread parallelization
+cmake --build . --parallel
 
-# Run Xary executable
-./xary.exe
+# Execute binary engine
+./xary.exe --version
 ```
 
 ---
 
-## 📄 License
+---
 
-This project is licensed under the **MIT License**.
+<div align="center">
+  <p><b>Developed with 💻 by <a href="https://github.com/DeveloperXHarsh">Piyush Rajput (@DeveloperXHarsh)</a></b></p>
+  <p>Released under the <a href="https://opensource.org/licenses/MIT">MIT License</a></p>
+</div>

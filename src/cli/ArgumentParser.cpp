@@ -1,92 +1,98 @@
 #include "../../include/xary/cli/ArgumentParser.hpp"
 #include <iostream>
-#include <vector>
+#include <span>
+
+/*
+ * ============================================================================
+ * Project     : Xary Engine
+ * Module      : Command Line Interface Parser (ArgumentParser.cpp)
+ * Description : Implementation of zero-copy CLI parser utilizing std::string_view
+ *               and std::span for heap-allocation-free token extraction.
+ * Author      : Piyush Rajput aka Harsh (DeveloperXHarsh)
+ * Copyright   : (c) 2026 Piyush Rajput. All rights reserved.
+ * ============================================================================
+ */
 
 namespace xary::cli {
 
-Options ArgumentParser::parse(int argc, char *argv[]) {
-  Options options;
-  if (argc <= 1) {
-    options.mode = Mode::Help;
-    return options;
-  }
-
-  std::vector<std::string> args(argv + 1, argv + argc);
-
-  for (std::size_t i = 0; i < args.size(); ++i) {
-    const auto &arg = args[i];
-
-    if (arg == "-h" || arg == "--help") {
-      options.mode = Mode::Help;
-      return options;
-    } else if (arg == "-v" || arg == "--version") {
-      options.mode = Mode::Version;
-      return options;
-    } else if (arg == "-e" || arg == "--encode") {
-      if (i + 1 < args.size()) {
-        options.mode = Mode::Encode;
-        options.inputFile = args[++i];
-      } else {
-        options.isValid = false;
-        options.errorMessage = "Missing input file path for --encode flag.";
+Options ArgumentParser::parse(int argc, const char* const argv[]) noexcept {
+    Options options;
+    if (argc <= 1) {
+        options.mode = Mode::Help;
         return options;
-      }
-    } else if (arg == "-d" || arg == "--decode") {
-      if (i + 1 < args.size()) {
-        options.mode = Mode::Decode;
-        options.inputFile = args[++i];
-      } else {
-        options.isValid = false;
-        options.errorMessage = "Missing input file path for --decode flag.";
-        return options;
-      }
-    } else if (arg == "-o" || arg == "--output") {
-      if (i + 1 < args.size()) {
-        options.outputFile = args[++i];
-      } else {
-        options.isValid = false;
-        options.errorMessage = "Missing output file path for --output flag.";
-        return options;
-      }
-    } else if (arg == "-i" || arg == "--inspect") {
-      if (i + 1 < args.size()) {
-        options.mode = Mode::Inspect;
-        options.inputFile = args[++i];
-      } else {
-        options.isValid = false;
-        options.errorMessage = "Missing target file path for --inspect flag.";
-        return options;
-      }
-    } else {
-      options.isValid = false;
-      options.errorMessage = "Unknown argument or flag: " + arg;
-      return options;
     }
-  }
 
-  return options;
+    // Zero-allocation slice over command-line token array
+    const std::span<const char* const> args(argv + 1, static_cast<std::size_t>(argc - 1));
+
+    for (std::size_t i = 0; i < args.size(); ++i) {
+        const std::string_view arg(args[i]);
+
+        if (arg == "-h" || arg == "--help") {
+            options.mode = Mode::Help;
+            return options;
+        }
+        if (arg == "-v" || arg == "--version") {
+            options.mode = Mode::Version;
+            return options;
+        }
+
+        // Inline parameter value reader for option flags requiring targets
+        auto captureValue = [&](std::string_view flagName, std::filesystem::path& targetPath) -> bool {
+            if (i + 1 < args.size()) {
+                targetPath = args[++i];
+                return true;
+            }
+            options.isValid = false;
+            options.errorMessage = "Missing target path parameter for '" + std::string(flagName) + "' flag.";
+            return false;
+        };
+
+        if (arg == "-e" || arg == "--encode") {
+            options.mode = Mode::Encode;
+            if (!captureValue(arg, options.inputFile)) return options;
+        } else if (arg == "-d" || arg == "--decode") {
+            options.mode = Mode::Decode;
+            if (!captureValue(arg, options.inputFile)) return options;
+        } else if (arg == "-i" || arg == "--inspect") {
+            options.mode = Mode::Inspect;
+            if (!captureValue(arg, options.inputFile)) return options;
+        } else if (arg == "-o" || arg == "--output") {
+            if (!captureValue(arg, options.outputFile)) return options;
+        } else {
+            options.isValid = false;
+            options.errorMessage = "Unrecognized command flag: '" + std::string(arg) + "'";
+            return options;
+        }
+    }
+
+    return options;
 }
 
-void ArgumentParser::printHelp() {
-  std::cout
-      << "Usage: xary [OPTIONS]\n\n"
-      << "Options:\n"
-      << "  -h, --help                 Display this help menu and exit\n"
-      << "  -v, --version              Display engine version\n"
-      << "  -e, --encode <file>        Encode binary file in 64 KB chunks\n"
-      << "  -d, --decode <file>        Decode binary file in 64 KB chunks\n"
-			<< "  -i, --inspect <file>       Inspect file magic signature & detect real extension\n"
-      << "  -o, --output <file>        Specify custom output file path\n\n"
-      << "Examples:\n"
-      << "  xary --version\n"
-			<< "  xary -i corrupted_file.png\n"
-      << "  xary -e data.bin\n"
-      << "  xary -e data.bin -o encoded.xary\n"
-      << "  xary -d encoded.xary -o restored.bin\n";
+void ArgumentParser::printHelp() noexcept {
+    std::cout
+        << "======================================================================\n"
+        << "                      Xary Binary Engine v1.0.0                       \n"
+        << "======================================================================\n"
+        << "Usage: xary [OPTIONS]\n\n"
+        << "Options:\n"
+        << "  -h, --help                 Display this help menu and exit\n"
+        << "  -v, --version              Display engine build version\n"
+        << "  -e, --encode <file>        Encode target file in chunked binary stream\n"
+        << "  -d, --decode <file>        Decode encrypted Xary binary stream\n"
+        << "  -i, --inspect <file>       Inspect file magic signature & MIME info\n"
+        << "  -o, --output <file>        Specify custom output destination path\n\n"
+        << "Examples:\n"
+        << "  xary --version\n"
+        << "  xary -i corrupted_file.png\n"
+        << "  xary -e data.bin\n"
+        << "  xary -e data.bin -o encoded.xary\n"
+        << "  xary -d encoded.xary -o restored.bin\n\n";
 }
 
-void ArgumentParser::printVersion() {
-  std::cout << "Xary Binary Engine v0.1.0 (C++20)\n";
+void ArgumentParser::printVersion() noexcept {
+    std::cout << "Xary Binary Engine v1.0.0 (C++20 Zero-Copy Pipeline)\n"
+              << "Copyright (c) 2026 Piyush Rajput aka Harsh (DeveloperXHarsh). All rights reserved.\n";
 }
 
 } // namespace xary::cli
