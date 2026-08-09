@@ -16,6 +16,7 @@ include_directories(include)
 set(SOURCES
     src/main.cpp
     src/core/Stream.cpp
+    src/core/StreamWriter.cpp
     src/cli/ArgumentParser.cpp
 )
 
