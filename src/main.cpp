@@ -4,9 +4,11 @@
 #include <cstdint>
 #include <cstddef>
 #include <filesystem>
+#include <chrono>
 #include "../include/xary/core/Stream.hpp"
 #include "../include/xary/core/StreamWriter.hpp"
 #include "../include/xary/core/FileTypeDetector.hpp"
+#include "../include/xary/core/Archiver.hpp"
 #include "../include/xary/cli/ArgumentParser.hpp"
 
 /*
@@ -14,7 +16,8 @@
  * Project     : Xary Engine
  * Module      : Main Pipeline Launcher (main.cpp)
  * Description : High-performance binary streaming tool featuring stream-based
- *               cipher transformation and magic byte signature inspection.
+ *               cipher transformation, magic signature inspection, and stealth
+ *               archiving (--sec) with strict 64 KB memory bounds.
  * Author      : Piyush Rajput aka Harsh (DeveloperXHarsh)
  * Copyright   : (c) 2026 Piyush Rajput. All rights reserved.
  * ============================================================================
@@ -282,6 +285,51 @@ int main(int argc, char* argv[]) {
             }
 
             return 0;
+        }
+
+        case cli::Mode::Pack: {
+            std::filesystem::path outPath = options.outputFile.empty()
+                ? std::filesystem::path(options.inputFile.string() + ".xary")
+                : options.outputFile;
+
+            std::cout << "[📦] Packing Target: " << options.inputFile.string() << " -> " << outPath.string() << "\n";
+            if (options.secureMode) {
+                std::cout << "  🔒 Mode: SECURE (--sec) | High-Entropy Stealth Header Active\n";
+            }
+
+            auto startTime = std::chrono::high_resolution_clock::now();
+            core::Archiver archiver;
+
+            if (archiver.pack(options.inputFile, outPath, options.secureMode, options.key)) {
+                auto endTime = std::chrono::high_resolution_clock::now();
+                auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
+                std::cout << "✔ Successfully packed archive in " << duration << " ms!\n";
+                return 0;
+            } else {
+                std::cerr << "❌ Error: Failed to generate archive package.\n";
+                return 1;
+            }
+        }
+
+        case cli::Mode::Unpack: {
+            std::filesystem::path outDir = options.outputFile.empty()
+                ? std::filesystem::path("./extracted")
+                : options.outputFile;
+
+            std::cout << "[🔓] Unpacking Archive: " << options.inputFile.string() << " -> " << outDir.string() << "\n";
+
+            auto startTime = std::chrono::high_resolution_clock::now();
+            core::Archiver archiver;
+
+            if (archiver.unpack(options.inputFile, outDir, options.key)) {
+                auto endTime = std::chrono::high_resolution_clock::now();
+                auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
+                std::cout << "✔ Successfully unpacked archive in " << duration << " ms!\n";
+                return 0;
+            } else {
+                std::cerr << "❌ Error: Failed to unpack archive. File may be corrupted or key is invalid.\n";
+                return 1;
+            }
         }
 
         case cli::Mode::None:

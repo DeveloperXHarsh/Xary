@@ -35,6 +35,7 @@ set(XARY_SOURCES
     src/core/StreamWriter.cpp
     src/core/BufferView.cpp
     src/core/FileTypeDetector.cpp
+    src/core/Archiver.cpp
     src/cli/ArgumentParser.cpp
 )
 

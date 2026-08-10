@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <string>
+#include <cstdint>
 
 /*
  * ============================================================================
@@ -22,13 +23,17 @@ enum class Mode {
     Version,
     Encode,
     Decode,
-    Inspect
+    Inspect,
+    Pack,
+    Unpack
 };
 
 struct Options {
     Mode mode{Mode::None};
     std::filesystem::path inputFile;
     std::filesystem::path outputFile;
+    bool secureMode{false};
+    uint32_t key{0x5A9C3F11};
     bool isValid{true};
     std::string errorMessage;
 };
