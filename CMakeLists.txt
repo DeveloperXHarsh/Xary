@@ -50,13 +50,19 @@ target_include_directories(xary
 )
 
 # ==============================================================================
-# Static Linking Configuration (Zero External C++ Runtime Dependencies)
+# Cross-Platform Static & Runtime Linking Configuration
 # ==============================================================================
 if(MSVC)
-    # Statically link the MSVC C/C++ Runtime (/MT for Release, /MTd for Debug)
+    # Windows (MSVC): Statically link the C/C++ Runtime (/MT for Release, /MTd for Debug)
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
+elseif(APPLE)
+    # macOS (Apple Clang): Apple strictly requires dynamic linking for system libraries and libc++.
+    # Do NOT pass -static or -static-libstdc++ on macOS.
+    message(STATUS "✔ macOS target detected: Using dynamic system runtime")
+
 else()
-    # Statically link GCC / MinGW / Clang standard C++ libraries
+    # Linux & Windows MinGW (GCC/Clang): Statically link C/C++ standard libraries
     target_link_options(xary PRIVATE 
         -static 
         -static-libgcc 
@@ -64,8 +70,9 @@ else()
     )
 endif()
 
-
+# ==============================================================================
 # Target-Scoped Compiler Warning & Optimization Flags
+# ==============================================================================
 target_compile_options(xary PRIVATE
     $<$<CXX_COMPILER_ID:MSVC>:
         /W4
@@ -73,24 +80,14 @@ target_compile_options(xary PRIVATE
         /permissive-
         /utf-8
     >
-    $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:
+    $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>:
         -Wall
         -Wextra
         -Wpedantic
         -Wshadow
-        -Wconversion
         -O3
-        -march=native
     >
 )
-
-# Static Runtime Linking Configuration
-if(WIN32 AND NOT MSVC)
-    # MinGW static runtime bundling to eliminate DLL dependency issues
-    target_link_options(xary PRIVATE -static -static-libgcc -static-libstdc++)
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    target_link_options(xary PRIVATE -static-libgcc -static-libstdc++)
-endif()
 
 # Set Output Executable Directory
 set_target_properties(xary PROPERTIES
