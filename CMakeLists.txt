@@ -49,6 +49,22 @@ target_include_directories(xary
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 )
 
+# ==============================================================================
+# Static Linking Configuration (Zero External C++ Runtime Dependencies)
+# ==============================================================================
+if(MSVC)
+    # Statically link the MSVC C/C++ Runtime (/MT for Release, /MTd for Debug)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+else()
+    # Statically link GCC / MinGW / Clang standard C++ libraries
+    target_link_options(xary PRIVATE 
+        -static 
+        -static-libgcc 
+        -static-libstdc++
+    )
+endif()
+
+
 # Target-Scoped Compiler Warning & Optimization Flags
 target_compile_options(xary PRIVATE
     $<$<CXX_COMPILER_ID:MSVC>:
