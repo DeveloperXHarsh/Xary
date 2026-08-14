@@ -1,0 +1,50 @@
+name: Build and Publish Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: Build ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            artifact_name: xary-v1.0.0-windows-x64.zip
+            asset_name: xary.exe
+          - os: ubuntu-latest
+            artifact_name: xary-v1.0.0-linux-x64.tar.gz
+            asset_name: xary
+          - os: macos-latest
+            artifact_name: xary-v1.0.0-macos-x64.tar.gz
+            asset_name: xary
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure CMake
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build Binary
+        run: cmake --build build --config Release --parallel
+
+      - name: Package Windows Binary
+        if: runner.os == 'Windows'
+        run: |
+          compress-archive -Path build/Release/xary.exe, README.md, LICENSE -DestinationPath ${{ matrix.artifact_name }}
+
+      - name: Package Linux / macOS Binary
+        if: runner.os != 'Windows'
+        run: |
+          tar -czvf ${{ matrix.artifact_name }} -C build xary ../README.md ../LICENSE
+
+      - name: Upload Binaries to Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{ matrix.artifact_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
