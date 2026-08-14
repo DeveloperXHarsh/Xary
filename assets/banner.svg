@@ -1,0 +1,559 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="1200"
+     height="320"
+     viewBox="0 0 1200 320">
+
+  <defs>
+
+    <!-- Background -->
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#05070b"/>
+      <stop offset="55%" stop-color="#090d13"/>
+      <stop offset="100%" stop-color="#030509"/>
+    </linearGradient>
+
+    <!-- Accent -->
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#00e5ff"/>
+      <stop offset="55%" stop-color="#19bfff"/>
+      <stop offset="100%" stop-color="#7c5cff"/>
+    </linearGradient>
+
+    <!-- Soft title gradient -->
+    <linearGradient id="title" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="72%" stop-color="#e8edf3"/>
+      <stop offset="100%" stop-color="#aeb9c7"/>
+    </linearGradient>
+
+    <!-- Subtle grid -->
+    <pattern id="grid"
+             width="32"
+             height="32"
+             patternUnits="userSpaceOnUse">
+      <path d="M32 0H0V32"
+            fill="none"
+            stroke="#ffffff"
+            stroke-opacity="0.025"
+            stroke-width="1"/>
+    </pattern>
+
+    <!-- Tiny dot pattern -->
+    <pattern id="dots"
+             width="16"
+             height="16"
+             patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="0.7"
+              fill="#00e5ff"
+              opacity="0.12"/>
+    </pattern>
+
+    <!-- Minimal glow -->
+    <filter id="softGlow"
+            x="-100%"
+            y="-100%"
+            width="300%"
+            height="300%">
+      <feGaussianBlur stdDeviation="5"
+                      result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Shadow -->
+    <filter id="shadow"
+            x="-50%"
+            y="-50%"
+            width="200%"
+            height="200%">
+      <feDropShadow dx="0"
+                    dy="8"
+                    stdDeviation="14"
+                    flood-color="#000000"
+                    flood-opacity="0.55"/>
+    </filter>
+
+  </defs>
+
+
+  <!-- ========================================================= -->
+  <!-- BACKGROUND -->
+  <!-- ========================================================= -->
+
+  <rect width="1200"
+        height="320"
+        rx="18"
+        fill="url(#bg)"/>
+
+  <rect width="1200"
+        height="320"
+        rx="18"
+        fill="url(#grid)"/>
+
+  <rect width="1200"
+        height="320"
+        rx="18"
+        fill="url(#dots)"
+        opacity="0.45"/>
+
+
+  <!-- ========================================================= -->
+  <!-- OUTER FRAME -->
+  <!-- ========================================================= -->
+
+  <path d="
+    M18 42
+    V18
+    H42
+
+    M1158 18
+    H1182
+    V42
+
+    M18 278
+    V302
+    H42
+
+    M1158 302
+    H1182
+    V278
+  "
+  fill="none"
+  stroke="#26313d"
+  stroke-width="1"/>
+
+  <!-- Accent corner marks -->
+  <path d="M18 42V18H42"
+        fill="none"
+        stroke="url(#accent)"
+        stroke-width="2"/>
+
+  <path d="M1158 18H1182V42"
+        fill="none"
+        stroke="url(#accent)"
+        stroke-width="2"/>
+
+
+  <!-- ========================================================= -->
+  <!-- LEFT TECHNICAL RAIL -->
+  <!-- ========================================================= -->
+
+  <g opacity="0.75">
+
+    <line x1="62" y1="76"
+          x2="62" y2="244"
+          stroke="#1b2630"
+          stroke-width="1"/>
+
+    <line x1="62" y1="104"
+          x2="76" y2="104"
+          stroke="#263642"
+          stroke-width="1"/>
+
+    <line x1="62" y1="216"
+          x2="76" y2="216"
+          stroke="#263642"
+          stroke-width="1"/>
+
+    <circle cx="62"
+            cy="104"
+            r="2"
+            fill="#00e5ff"/>
+
+    <circle cx="62"
+            cy="216"
+            r="2"
+            fill="#7c5cff"/>
+
+  </g>
+
+
+  <!-- ========================================================= -->
+  <!-- XARY SYMBOL -->
+  <!-- ========================================================= -->
+
+  <g transform="translate(145 160)"
+     filter="url(#shadow)">
+
+    <!-- Outer hex -->
+    <path d="
+      M0 -63
+      L54 -31
+      L54 31
+      L0 63
+      L-54 31
+      L-54 -31
+      Z"
+      fill="#080c11"
+      stroke="#263440"
+      stroke-width="2"/>
+
+    <!-- Accent segment -->
+    <path d="
+      M0 -63
+      L54 -31
+      M-54 31
+      L0 63"
+      stroke="url(#accent)"
+      stroke-width="3"
+      fill="none"/>
+
+    <!-- Inner frame -->
+    <path d="
+      M0 -46
+      L40 -23
+      L40 23
+      L0 46
+      L-40 23
+      L-40 -23
+      Z"
+      fill="none"
+      stroke="#16222d"
+      stroke-width="1"/>
+
+    <!-- X mark -->
+    <path d="
+      M-24 -29
+      L-4 -9
+      L24 -29
+      L7 0
+      L24 29
+      L-4 9
+      L-24 29
+      L-7 0
+      Z"
+      fill="url(#accent)"
+      filter="url(#softGlow)"/>
+
+    <!-- Center -->
+    <circle cx="0"
+            cy="0"
+            r="3"
+            fill="#ffffff"/>
+
+  </g>
+
+
+  <!-- ========================================================= -->
+  <!-- MAIN CONTENT -->
+  <!-- ========================================================= -->
+
+  <g transform="translate(260 0)">
+
+    <!-- Tiny project label -->
+    <text x="0"
+          y="82"
+          font-family="Inter, Segoe UI, Arial, sans-serif"
+          font-size="11"
+          font-weight="600"
+          letter-spacing="3"
+          fill="#5e7182">
+      SYSTEMS / BINARY / C++
+    </text>
+
+    <!-- Version -->
+    <g transform="translate(455 66)">
+      <rect width="70"
+            height="24"
+            rx="12"
+            fill="#0b1117"
+            stroke="#25323d"/>
+
+      <circle cx="13"
+              cy="12"
+              r="3"
+              fill="#00e5ff"/>
+
+      <text x="23"
+            y="16"
+            font-family="Inter, Segoe UI, Arial, sans-serif"
+            font-size="10"
+            font-weight="700"
+            letter-spacing="1.5"
+            fill="#aebbc7">
+        v1.0.0
+      </text>
+    </g>
+
+
+    <!-- Main title -->
+    <text x="0"
+          y="140"
+          font-family="Inter, Segoe UI, Arial, sans-serif"
+          font-size="62"
+          font-weight="800"
+          letter-spacing="5"
+          fill="url(#title)">
+      XARY
+    </text>
+
+    <text x="208"
+          y="140"
+          font-family="Inter, Segoe UI, Arial, sans-serif"
+          font-size="62"
+          font-weight="800"
+          letter-spacing="5"
+          fill="url(#accent)">
+      ENGINE
+    </text>
+
+
+    <!-- Divider -->
+    <line x1="0"
+          y1="160"
+          x2="640"
+          y2="160"
+          stroke="#202b35"
+          stroke-width="1"/>
+
+    <line x1="0"
+          y1="160"
+          x2="115"
+          y2="160"
+          stroke="url(#accent)"
+          stroke-width="2"/>
+
+
+    <!-- Description -->
+    <text x="0"
+          y="190"
+          font-family="Inter, Segoe UI, Arial, sans-serif"
+          font-size="15"
+          font-weight="500"
+          letter-spacing="2.1"
+          fill="#8d9aa7">
+      ULTRA-FAST BINARY STREAM &amp; ARCHIVE ENGINE
+    </text>
+
+
+    <!-- ======================================================= -->
+    <!-- FEATURE TAGS -->
+    <!-- ======================================================= -->
+
+    <g transform="translate(0 218)">
+
+      <!-- C++20 -->
+      <g>
+        <rect width="82"
+              height="27"
+              rx="6"
+              fill="#0b1117"
+              stroke="#25313b"/>
+
+        <text x="41"
+              y="18"
+              text-anchor="middle"
+              font-family="Inter, Segoe UI, Arial, sans-serif"
+              font-size="11"
+              font-weight="700"
+              letter-spacing="1"
+              fill="#00dfff">
+          C++20
+        </text>
+      </g>
+
+
+      <!-- Zero allocation -->
+      <g transform="translate(94 0)">
+        <rect width="139"
+              height="27"
+              rx="6"
+              fill="#0b1117"
+              stroke="#25313b"/>
+
+        <circle cx="15"
+                cy="13.5"
+                r="5"
+                fill="none"
+                stroke="#9a7cff"
+                stroke-width="1.5"/>
+
+        <line x1="12"
+              y1="16"
+              x2="18"
+              y2="10"
+              stroke="#9a7cff"
+              stroke-width="1.5"/>
+
+        <text x="28"
+              y="18"
+              font-family="Inter, Segoe UI, Arial, sans-serif"
+              font-size="10"
+              font-weight="700"
+              letter-spacing="0.8"
+              fill="#a9b4bf">
+          ZERO ALLOCATION
+        </text>
+      </g>
+
+
+      <!-- SIMD -->
+      <g transform="translate(245 0)">
+        <rect width="104"
+              height="27"
+              rx="6"
+              fill="#0b1117"
+              stroke="#25313b"/>
+
+        <path d="M14 18L18 9L22 18"
+              fill="none"
+              stroke="#48e08b"
+              stroke-width="1.5"/>
+
+        <text x="30"
+              y="18"
+              font-family="Inter, Segoe UI, Arial, sans-serif"
+              font-size="10"
+              font-weight="700"
+              letter-spacing="1"
+              fill="#a9b4bf">
+          SIMD
+        </text>
+      </g>
+
+
+      <!-- Cross platform -->
+      <g transform="translate(361 0)">
+        <rect width="147"
+              height="27"
+              rx="6"
+              fill="#0b1117"
+              stroke="#25313b"/>
+
+        <rect x="12"
+              y="8"
+              width="11"
+              height="9"
+              rx="1"
+              fill="none"
+              stroke="#ffb84d"
+              stroke-width="1.5"/>
+
+        <text x="31"
+              y="18"
+              font-family="Inter, Segoe UI, Arial, sans-serif"
+              font-size="10"
+              font-weight="700"
+              letter-spacing="0.7"
+              fill="#a9b4bf">
+          CROSS-PLATFORM
+        </text>
+      </g>
+
+    </g>
+
+  </g>
+
+
+  <!-- ========================================================= -->
+  <!-- RIGHT BINARY VISUAL -->
+  <!-- ========================================================= -->
+
+  <g transform="translate(1010 82)"
+     font-family="JetBrains Mono, Consolas, monospace"
+     font-size="11"
+     text-anchor="middle">
+
+    <!-- vertical rail -->
+    <line x1="0"
+          y1="0"
+          x2="0"
+          y2="152"
+          stroke="#1d2a34"
+          stroke-width="1"/>
+
+    <!-- binary streams -->
+    <g fill="#24313d">
+
+      <text x="-30" y="12">01001000</text>
+      <text x="-30" y="31">01011000</text>
+      <text x="-30" y="50">01000001</text>
+      <text x="-30" y="69">01010010</text>
+      <text x="-30" y="88">01011001</text>
+      <text x="-30" y="107">01011000</text>
+      <text x="-30" y="126">01001001</text>
+      <text x="-30" y="145">01001110</text>
+
+    </g>
+
+    <!-- highlighted bits -->
+    <g fill="#00dfff">
+
+      <text x="29" y="31">01</text>
+      <text x="29" y="69">10</text>
+      <text x="29" y="107">01</text>
+      <text x="29" y="145">10</text>
+
+    </g>
+
+    <!-- bottom marker -->
+    <circle cx="0"
+            cy="170"
+            r="3"
+            fill="#00e5ff"/>
+
+  </g>
+
+
+  <!-- ========================================================= -->
+  <!-- BOTTOM STATUS -->
+  <!-- ========================================================= -->
+
+  <g transform="translate(260 282)">
+
+    <circle cx="3"
+            cy="-3"
+            r="3"
+            fill="#35d98b"/>
+
+    <text x="14"
+          y="1"
+          font-family="JetBrains Mono, Consolas, monospace"
+          font-size="10"
+          letter-spacing="1.5"
+          fill="#657582">
+      READY // HIGH PERFORMANCE // LOW OVERHEAD
+    </text>
+
+    <!-- right metadata -->
+    <text x="720"
+          y="1"
+          text-anchor="end"
+          font-family="JetBrains Mono, Consolas, monospace"
+          font-size="10"
+          letter-spacing="1"
+          fill="#394752">
+      XRY-CORE
+    </text>
+
+  </g>
+
+
+  <!-- ========================================================= -->
+  <!-- BOTTOM ACCENT -->
+  <!-- ========================================================= -->
+
+  <line x1="18"
+        y1="301"
+        x2="250"
+        y2="301"
+        stroke="#18232d"
+        stroke-width="1"/>
+
+  <line x1="950"
+        y1="301"
+        x2="1182"
+        y2="301"
+        stroke="#18232d"
+        stroke-width="1"/>
+
+  <line x1="18"
+        y1="301"
+        x2="90"
+        y2="301"
+        stroke="url(#accent)"
+        stroke-width="1.5"/>
+
+</svg>

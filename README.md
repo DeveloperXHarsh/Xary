@@ -1,66 +1,85 @@
 <div align="center">
 
-# ⚡ XARY BINARY ENGINE
+<img src="assets/banner.svg" alt="Xary Binary Engine Banner" width="100%" />
 
-**An ultra-fast C++20 tool for processing binary files, packing folders securely, and inspecting file signatures.**
+<br /><br />
 
+[![Winget](https://img.shields.io/badge/Winget-DeveloperXHarsh.Xary-blue?style=for-the-badge&logo=windows)](https://github.com/microsoft/winget-pkgs)
+[![Scoop](https://img.shields.io/badge/Scoop-scoop--xary-4169E1?style=for-the-badge&logo=powershell)](https://github.com/DeveloperXHarsh/scoop-xary)
+[![Homebrew](https://img.shields.io/badge/Homebrew-homebrew--xary-FBB03B?style=for-the-badge&logo=homebrew&logoColor=black)](https://github.com/DeveloperXHarsh/homebrew-xary)
 [![C++20](https://img.shields.io/badge/C%2B%2B-20-00599C?style=for-the-badge&logo=cplusplus&logoColor=white)](https://en.cppreference.com/w/cpp/20)
 [![CMake](https://img.shields.io/badge/CMake-4.4%2B-B22222?style=for-the-badge&logo=cmake&logoColor=white)](https://cmake.org/)
-[![Developer](https://img.shields.io/badge/Developer-DeveloperXHarsh-663399?style=for-the-badge&logo=github&logoColor=white)](https://github.com/DeveloperXHarsh)
-[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-black?style=for-the-badge&logo=windows&logoColor=white)](#)
-[![License](https://img.shields.io/badge/License-MIT-FFBF00.svg?style=for-the-badge)](#)
+[![License](https://img.shields.io/badge/License-MIT-FFBF00.svg?style=for-the-badge)](LICENSE)
 
 ---
 
 </div>
 
-<h2 align="center">📌 Engine Overview</h2>
+<h2 align="center">📦 Distribution & Installation</h2>
 
-**Xary Engine** is a lightweight C++20 command-line tool and software library built to handle binary files and directories quickly, safely, and securely.
+**Xary Engine** is distributed across major package managers and direct bootstrap scripts for immediate, zero-configuration deployment:
 
-Normally, when software opens a large file (like 10 GB), it tries to load the entire file into your computer's RAM memory. This slows down your system and can cause crashes. **Xary solves this problem.**
+### 🪟 Windows Environments
 
-Xary processes files in small **64 KB pieces (chunks)**. Whether your file is 10 Megabytes or 500 Gigabytes, Xary uses almost **zero extra RAM memory**.
+**Via Direct Bootstrapper (Recommended for CI/CD):**
+```powershell
+# Native PowerShell execution (Requires RemoteSigned or unrestricted policy)
+irm [https://raw.githubusercontent.com/DeveloperXHarsh/Xary/main/install.ps1](https://raw.githubusercontent.com/DeveloperXHarsh/Xary/main/install.ps1) | iex
+```
 
-### What can you do with Xary?
-1. **Pack Folders Securely (`--pack`)**: Turn any folder and its contents into a single archive file (`.xary`).
-2. **Hide File Information (`--sec`)**: Enable stealth mode to hide and encrypt file names, folder paths, and file sizes so nobody can read them inside the packed file.
-3. **Unpack Archives (`--unpack`)**: Instantly restore your packed `.xary` archives back to their original folders and files.
-4. **Identify File Types (`--inspect`)**: Find out what kind of file something is (PNG, PDF, MP4, EXE, etc.) by checking its hidden internal signature, even if someone changed the file extension.
-5. **Encrypt Files (`--encode` / `--decode`)**: Fast file encryption and decryption using a custom key.
+**Via Package Managers:**
+```bash
+# Windows Package Manager (Winget)
+winget install DeveloperXHarsh.Xary
 
----
+# Scoop Package Manager
+scoop bucket add xary [https://github.com/DeveloperXHarsh/scoop-xary](https://github.com/DeveloperXHarsh/scoop-xary)
+scoop install xary
+```
 
-<h2 align="center">🌱 Beginner's Corner: Key Concepts Explained</h2>
-
-If you are new to C++ or binary tools, here is a simple breakdown of the main terms used in this project:
-
-* **What is Stream Processing?**  
-  Instead of loading an entire book into memory at once, stream processing reads it one page at a time. Xary reads files in small 64 KB pieces at a time.
-* **What is Zero-Allocation?**  
-  "Dynamic allocation" means asking your computer for new RAM memory while a program runs (which is slow). "Zero-allocation" means Xary reuses the exact same tiny memory space over and over, making it extremely fast.
-* **What is Stealth Mode (`--sec`)?**  
-  Standard ZIP files allow anyone to see the names of files inside an archive. Xary's Stealth Mode scrambles file names, folder paths, and file data into random noise so no text reader can inspect your content.
-
----
-
-<h2 align="center">🚀 Main Features</h2>
-
-* **📦 Low Memory Usage**: Uses a fixed 64 KB buffer space so memory usage never spikes.
-* **⚡ Vectorized Speed**: Uses SIMD hardware instructions (`#pragma GCC unroll 16`) to speed up byte rotation and encryption.
-* **🔐 Full Metadata Obfuscation**: Encrypts file paths, folder structures, entry types, and byte sizes.
-* **📂 Directory Reconstruction**: Automatically recreates complex subfolders when extracting archives.
-* **🛡️ Smart Format Detector**: Identifies real file types (PNG, JPEG, PDF, MP4, EXE, etc.) using magic byte pattern matching.
-* **⚙️ Fast Command Line Tool**: Zero-copy argument parsing directly from terminal inputs (`argv`).
-* **🏭 Modern Build System**: Easy build process configured with CMake 4.4+ and C++20 standards.
+### 🍺 macOS & Linux Environments
+```bash
+# Homebrew Package Manager
+brew tap DeveloperXHarsh/xary
+brew install xary
+```
 
 ---
 
-<h2 align="center">📐 Binary Layout (How Archives Look)</h2>
+<h2 align="center">📌 Engine Architecture & Overview</h2>
+
+**Xary** is a low-level C++20 systems engineering tool and embedded library engineered for maximal deterministic performance in large-scale binary dataset manipulation, metadata-obfuscated archiving, and high-fidelity signature analysis.
+
+Traditional I/O operations and naive `std::filesystem` implementations suffer from catastrophic memory fragmentation and paging bottlenecks when addressing multi-gigabyte structures. **Xary bypasses the OS virtual memory bottleneck.**
+
+By strictly enforcing a vectorized, chunked **64 KB I/O stream pipeline**, Xary maintains an `O(1)` deterministic RAM footprint regardless of whether the target dataset is 10 Megabytes or 500 Gigabytes.
+
+### Core Datapath Capabilities
+1. **Recursive Archive Generation (`--pack`)**: Serialize complex directory trees into unified `.xary` binary containers via contiguous write streams.
+2. **High-Entropy Obfuscation (`--sec`)**: Deploy a rolling XOR/rotation cipher schedule to scramble path strings, entry lengths, and header magic into indistinguishable binary noise (defeating static structural analysis).
+3. **Deterministic Reconstruction (`--unpack`)**: Parse container layouts and rebuild original filesystem structures with exact topological accuracy.
+4. **Heuristic File Inspection (`--inspect`)**: Bypass spoofed filesystem extensions by performing deep magic-byte signature pattern matching directly against the chunked buffer view.
+5. **Stream Cryptography (`--encode` / `--decode`)**: Apply high-throughput, SIMD-accelerated linear transformations to raw byte streams using deterministic 32-bit key constraints.
+
+---
+
+<h2 align="center">🚀 Systems-Level Features</h2>
+
+* **📦 O(1) Space Complexity**: Bounded 64 KB heap allocation eliminates dynamic memory spikes during mass I/O operations.
+* **⚡ Vectorized Datapaths**: Cryptographic primitives leverage aggressive compiler unrolling (`#pragma GCC unroll 16`) to saturate ALU pipelines (AVX/NEON).
+* **🔐 Full Container Obfuscation**: Stealth Mode cryptographically obscures internal MFT-style path resolution tables.
+* **📂 Topological Reconstruction**: Automatically resolves and allocates complex nested relative directories during container extraction.
+* **🛡️ Buffer-View Signature Matching**: Analyzes binary payloads using zero-copy `std::span` and `std::string_view` mappings for zero-allocation MIME detection.
+* **⚙️ Zero-Copy Arg Parsing**: Traverses terminal inputs directly from the `argv` memory block without intermediate heap string allocations.
+* **🏭 Modern Toolchain Setup**: Fully configured via CMake 4.4+ utilizing strict C++20 standards.
+
+---
+
+<h2 align="center">📐 Binary Container Specification</h2>
 
 ```text
 ┌────────────────────────────────────────────────────────────────────────┐
-│                        XARY BINARY CONTAINER                          │
+│                        XARY BINARY CONTAINER                           │
 ├───────────────┬─────────────────┬─────────────────┬────────────────────┤
 │ Magic (4B)    │ Entry Type (1B) │ Path Len (4B)   │ Path String (Var)  │
 ├───────────────┼─────────────────┼─────────────────┼────────────────────┤
@@ -69,140 +88,145 @@ If you are new to C++ or binary tools, here is a simple breakdown of the main te
 └───────────────┴─────────────────┴─────────────────┴────────────────────┘
 ```
 
-* **Standard Archive**: Starts with the header identifier `XARY` and stores file paths clearly.
-* **Stealth Archive (`--sec`)**: Scrambles the header, file names, folder paths, and file contents so the file looks like random noise when opened in a text editor.
+* **Standard Archival Mode**: Retains deterministic relative directory metadata and the `XARY` magic identifier for interoperable parsing.
+* **Stealth Mode (`--sec`)**: Employs the provided key schedule to scramble the entire layout structure (headers, sizes, strings, and payload) preventing deep packet inspection (DPI) and reverse engineering.
 
 ---
 
-<h2 align="center">📂 Project Folder Structure</h2>
+<h2 align="center">📂 Core Repository Layout</h2>
 
 ```text
 xary/
-├── 📁 .github/              # CI/CD build scripts
+├── 📁 .github/              # CI/CD workflows and automated release matrices
+├── 📁 assets/               # SVG vectors and repository visual assets
 ├── 📁 include/
 │   └── 📁 xary/
 │       ├── 📁 cli/
-│       │   └── 📄 ArgumentParser.hpp   # Terminal command parser
+│       │   └── 📄 ArgumentParser.hpp   # Zero-copy terminal argument parser
 │       └── 📁 core/
-│           ├── 📄 Archiver.hpp         # Folder packing & stealth encryption module
-│           ├── 📄 BufferView.hpp       # Memory buffer view helper
-│           ├── 📄 FileTypeDetector.hpp # File type detector
-│           ├── 📄 Stream.hpp           # 64 KB chunk binary reader
-│           └── 📄 StreamWriter.hpp     # Binary file writer
+│           ├── 📄 Archiver.hpp         # O(1) packing/unpacking & cipher datapath
+│           ├── 📄 BufferView.hpp       # std::span-based memory view overlays
+│           ├── 📄 FileTypeDetector.hpp # Byte-signature pattern matching heuristics
+│           ├── 📄 Stream.hpp           # 64 KB deterministic binary reader context
+│           └── 📄 StreamWriter.hpp     # Contiguous binary sink multiplexer
 ├── 📁 src/
 │   ├── 📁 cli/
-│   │   └── 📄 ArgumentParser.cpp   # Command validation logic
+│   │   └── 📄 ArgumentParser.cpp   # Validation logic & state machine
 │   ├── 📁 core/
-│   │   ├── 📄 Archiver.cpp         # Folder packing, extraction & cipher routines
-│   │   ├── 📄 BufferView.cpp       # Memory view helper implementation
-│   │   ├── 📄 FileTypeDetector.cpp # File signature matcher
-│   │   ├── 📄 Stream.cpp           # Stream buffer manager
-│   │   └── 📄 StreamWriter.cpp     # File writer implementation
-│   └── 📄 main.cpp                 # Main program entry point
-├── 📁 tests/                  # Automated test files
-├── 📄 build.sh                # Automated build script
-├── 📄 CMakeLists.txt          # CMake 4.4+ build setup
-├── 📄 LICENSE                 # MIT License file
-└── 📄 README.md               # Project documentation
+│   │   ├── 📄 Archiver.cpp         # Filesystem traversal & extraction logic
+│   │   ├── 📄 BufferView.cpp       # Memory view implementation
+│   │   ├── 📄 FileTypeDetector.cpp # MIME magic tables
+│   │   ├── 📄 Stream.cpp           # OS-level I/O handles & chunk logic
+│   │   └── 📄 StreamWriter.cpp     # I/O sink implementation
+│   └── 📄 main.cpp                 # Execution entry point
+├── 📁 tests/                  # Automated integration testing
+├── 📄 install.ps1             # PowerShell automated installation bootstrapper
+├── 📄 build.sh                # Multi-core compilation script wrapper
+├── 📄 CMakeLists.txt          # Primary build system configuration
+├── 📄 LICENSE                 # MIT License declaration
+└── 📄 README.md               # Architecture documentation
 ```
 
 ---
 
-<h2 align="center">💻 How to Use the Command Line</h2>
+<h2 align="center">💻 CLI Execution Syntax</h2>
 
-You can run Xary directly from your terminal or command prompt:
+Interact with the Xary engine directly via standard terminal or shell environments:
 
 ```bash
-# Show help menu and options
+# Print engine configuration and switch parameters
 xary --help
 
-# Check what type of file something is (Detect real format)
-xary -i mystery_file.png
+# Execute signature heuristics against spoofed payloads
+xary -i spoofed_binary.png
 
-# Encrypt a single file with a secret key
-xary -e my_file.txt -o encrypted.xary -k 0x5A9C3F11
+# Initialize stream cipher against a single target
+xary -e plaintext.txt -o ciphertext.xary -k 0x5A9C3F11
 
-# Decrypt an encrypted file back to its original state
-xary -d encrypted.xary -o restored.txt -k 0x5A9C3F11
+# Reverse stream cipher using deterministic key
+xary -d ciphertext.xary -o restored.txt -k 0x5A9C3F11
 
-# Pack a folder into a standard archive file
-xary -p ./my_folder -o archive.xary
+# Serialize directory tree into standard binary container
+xary -p ./source_repo -o release.xary
 
-# Pack a folder in Stealth Mode (--sec) so file names are hidden
-xary -p ./private_folder -o vault.xary --sec -k 0xDEADBEEF
+# Serialize directory tree utilizing Stealth Mode obfuscation
+xary -p ./classified_data -o vault.xary --sec -k 0xDEADBEEF
 
-# Unpack an archive file back into a folder
-xary -u vault.xary -o ./extracted_folder -k 0xDEADBEEF
+# Deserialize container and reconstruct topology
+xary -u vault.xary -o ./extracted_data -k 0xDEADBEEF
 ```
 
-### 🎛️ Command Flags Reference
+### 🎛️ Command-Line Switch Reference
 
-| Flag | Long Flag | Parameter | What it does |
+| Flag | Long Flag | Parameter | Technical Description |
 | :--- | :--- | :--- | :--- |
-| `-h` | `--help` | — | Displays the help menu and usage instructions |
-| `-v` | `--version` | — | Shows the current software version |
-| `-p` | `--pack` | `<folder>` | Packs a folder or file into an archive |
-| `-u` | `--unpack` | `<file>` | Unpacks an archive and restores its folder structure |
-| `-e` | `--encode` | `<file>` | Encrypts a single file using a stream cipher |
-| `-d` | `--decode` | `<file>` | Decrypts an encrypted file back to original data |
-| `-i` | `--inspect` | `<file>` | Reads the file header and detects its real MIME type |
-| `-o` | `--output` | `<path>` | Sets the output file or destination directory path |
-| `—`  | `--sec` | — | Turns on Stealth Mode (hides file names, paths, and sizes) |
-| `-k` | `--key` | `<hex/int>`| Sets a custom encryption key (Default: `0x5A9C3F11`) |
+| `-h` | `--help` | — | Emits standard output usage parameters. |
+| `-v` | `--version` | — | Emits binary engine compilation version. |
+| `-p` | `--pack` | `<folder>` | Initializes contiguous serialization of the target tree. |
+| `-u` | `--unpack` | `<file>` | Reconstructs relative topology from container context. |
+| `-e` | `--encode` | `<file>` | Applies vectorized forward cipher against raw binary stream. |
+| `-d` | `--decode` | `<file>` | Applies inverse logic to restore encoded stream. |
+| `-i` | `--inspect` | `<file>` | Invokes pattern-matching engine against stream chunk headers. |
+| `-o` | `--output` | `<path>` | Designates the terminal sink for I/O operations. |
+| `—`  | `--sec` | — | Toggles Stealth Mode (cryptographic obfuscation of all MFT metadata). |
+| `-k` | `--key` | `<hex/int>`| Sets custom 32-bit key schedule (Fallback: `0x5A9C3F11`). |
 
 ---
 
-<h2 align="center">💡 C++ Developer Code Examples</h2>
+<h2 align="center">💡 C++20 API Integration</h2>
 
-### 1. Packing and Unpacking Folders in C++
+Xary can be linked dynamically or statically into downstream C++ infrastructure.
+
+### 1. O(1) Cryptographic Directory Serialization
 
 ```cpp
 #include "xary/core/Archiver.hpp"
 #include <iostream>
 
 int main() {
-    xary::core::Archiver archiver;
-    uint32_t secretKey = 0x8F3A2B1C;
+    xary::core::Archiver engine;
+    constexpr uint32_t cipherKey = 0x8F3A2B1C;
 
-    // Pack a folder using stealth mode (--sec)
-    bool packed = archiver.pack("./my_folder", "vault.xary", /*secureMode=*/true, secretKey);
-    if (packed) {
-        std::cout << "Folder successfully packed and encrypted!\n";
+    // Execute serial packetization with Stealth Mode metadata obfuscation
+    bool packStatus = engine.pack("./source_tree", "container.xary", /*secureMode=*/true, cipherKey);
+    if (packStatus) {
+        std::cout << "[SUCCESS]: Tree serialized and structurally obfuscated.\n";
     }
 
-    // Unpack the archive back into a folder
-    bool unpacked = archiver.unpack("vault.xary", "./restored_folder", secretKey);
-    if (unpacked) {
-        std::cout << "Folder successfully restored!\n";
+    // Reconstruct filesystem topology natively
+    bool unpackStatus = engine.unpack("container.xary", "./restored_tree", cipherKey);
+    if (unpackStatus) {
+        std::cout << "[SUCCESS]: Tree topology successfully reconstructed.\n";
     }
 
     return 0;
 }
 ```
 
-### 2. Reading Binary Streams & Detecting File Types in C++
+### 2. Zero-Allocation MIME Inspection via Buffer Views
 
 ```cpp
 #include "xary/core/Stream.hpp"
 #include "xary/core/BufferView.hpp"
 #include "xary/core/FileTypeDetector.hpp"
 #include <iostream>
+#include <vector>
 
 int main() {
-    // Open a file using a 64 KB streaming buffer
-    xary::core::Stream reader("unknown_file.bin", 64 * 1024);
-    if (!reader.isOpen()) return 1;
+    // Initialize OS file descriptor bounded by a 64 KB memory sink
+    xary::core::Stream ioContext("unknown_payload.bin", 64 * 1024);
+    if (!ioContext.isOpen()) return 1;
 
-    // Read the first chunk of data
-    std::vector<uint8_t> buffer;
-    reader.readChunk(buffer);
+    // Load initial sector stream
+    std::vector<uint8_t> streamBuffer;
+    ioContext.readChunk(streamBuffer);
 
-    // Inspect the header to find the real format
-    xary::core::BufferView view(buffer);
-    xary::core::FileTypeInfo info = xary::core::FileTypeDetector::detect(view);
+    // Map zero-copy span over the buffer and execute heuristic detection
+    xary::core::BufferView memoryView(streamBuffer);
+    xary::core::FileTypeInfo fileMeta = xary::core::FileTypeDetector::detect(memoryView);
 
-    std::cout << "MIME Type          : " << info.mimeType << "\n";
-    std::cout << "Expected Extension : " << info.expectedExtension << "\n";
+    std::cout << "MIME Signature     : " << fileMeta.mimeType << "\n";
+    std::cout << "Assumed Extension  : " << fileMeta.expectedExtension << "\n";
 
     return 0;
 }
@@ -210,48 +234,48 @@ int main() {
 
 ---
 
-<h2 align="center">🛠️ Building the Project</h2>
+<h2 align="center">🛠️ Build Matrix & Compilation</h2>
 
-### 📋 Prerequisites
+### 📋 Toolchain Prerequisites
 
-| Tool | Minimum Version | Recommended Version |
+| Dependency | Minimum Threshold | Optimal Configuration |
 | :--- | :--- | :--- |
-| **C++ Compiler** | GCC 10+ / Clang 11+ / MSVC 2019+ | GCC 13+ / Clang 16+ (C++20 compliant) |
-| **Build System** | CMake 4.4+ | CMake 4.4+ |
-| **Operating System** | Windows, Linux, or macOS | Any 64-bit operating system |
+| **C++ Compiler** | GCC 10.1+ / Clang 11+ / MSVC Toolchain 14.2+ | GCC 13+ / Clang 16+ (For AVX Unrolling) |
+| **Build System** | CMake 3.20+ | CMake 4.4+ |
+| **Target OS** | Windows / Linux / macOS | 64-bit Architecture (x86_64 / ARM64) |
 
 ---
 
-### ⚡ Easy Build Method (Using Script)
+### ⚡ Automated CI/CD Script Wrapper
 
-Run the included `build.sh` script to automatically compile the project using all available CPU cores:
+Execute the bundled shell abstraction for parallelized compilation:
 
 ```bash
-# Build and run the project
+# Execute standard parallel build & test suite
 ./build.sh
 
-# Rebuild everything from scratch
+# Purge CMake cache and force raw recompilation
 ./build.sh --clean
 
-# Build without automatically running the executable
+# Compile binaries bypassing auto-execution
 ./build.sh --no-run
 ```
 
 ---
 
-### 🔧 Manual CMake Build Method
+### 🔧 Manual CMake Toolchain Execution
 
 ```bash
-# 1. Create a build folder
+# 1. Initialize out-of-source build tree
 mkdir -p build && cd build
 
-# 2. Configure the project with CMake 4.4+
+# 2. Generate Release-optimized build scripts
 cmake -DCMAKE_BUILD_TYPE=Release ..
 
-# 3. Compile the executable
+# 3. Compile targeting maximum host threads
 cmake --build . --parallel
 
-# 4. Run Xary
+# 4. Verify binary artifact
 ./xary --version
 ```
 
@@ -263,7 +287,7 @@ cmake --build . --parallel
 
 ---
 
-Crafted with 💻 by **[Piyush Rajput (@DeveloperXHarsh)](https://github.com/DeveloperXHarsh)**  
-Released under the open-source **[MIT License](https://opensource.org/licenses/MIT)**
+Engineered & Architected by **[Piyush Rajput (@DeveloperXHarsh)](https://github.com/DeveloperXHarsh)**  
+Distributed under the open-source **[MIT License](https://opensource.org/licenses/MIT)**
 
 </div>
