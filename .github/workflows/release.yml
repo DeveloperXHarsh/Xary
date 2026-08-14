@@ -5,6 +5,10 @@ on:
     tags:
       - 'v*'
 
+# Required to allow GitHub Actions to attach binaries to your Releases
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Build ${{ matrix.os }}
@@ -13,14 +17,11 @@ jobs:
       matrix:
         include:
           - os: windows-latest
-            artifact_name: xary-v1.0.0-windows-x64.zip
-            asset_name: xary.exe
+            artifact_suffix: windows-x64.zip
           - os: ubuntu-latest
-            artifact_name: xary-v1.0.0-linux-x64.tar.gz
-            asset_name: xary
+            artifact_suffix: linux-x64.tar.gz
           - os: macos-latest
-            artifact_name: xary-v1.0.0-macos-x64.tar.gz
-            asset_name: xary
+            artifact_suffix: macos-x64.tar.gz
 
     steps:
       - name: Checkout Code
@@ -35,16 +36,26 @@ jobs:
       - name: Package Windows Binary
         if: runner.os == 'Windows'
         run: |
-          compress-archive -Path build/Release/xary.exe, README.md, LICENSE -DestinationPath ${{ matrix.artifact_name }}
+          New-Item -ItemType Directory -Path staging
+          Copy-Item -Path "README.md", "LICENSE" -Destination staging/
+          if (Test-Path "build/Release/xary.exe") {
+            Copy-Item "build/Release/xary.exe" staging/
+          } else {
+            Copy-Item "build/xary.exe" staging/
+          }
+          Compress-Archive -Path "staging/*" -DestinationPath "xary-${{ github.ref_name }}-${{ matrix.artifact_suffix }}"
 
       - name: Package Linux / macOS Binary
         if: runner.os != 'Windows'
         run: |
-          tar -czvf ${{ matrix.artifact_name }} -C build xary ../README.md ../LICENSE
+          mkdir staging
+          cp README.md LICENSE staging/
+          cp build/xary staging/
+          tar -czvf "xary-${{ github.ref_name }}-${{ matrix.artifact_suffix }}" -C staging .
 
       - name: Upload Binaries to Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
-          files: ${{ matrix.artifact_name }}
+          files: "xary-${{ github.ref_name }}-${{ matrix.artifact_suffix }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
