@@ -24,7 +24,7 @@
 **Via Direct Bootstrapper (Recommended for CI/CD):**
 ```powershell
 # Native PowerShell execution (Requires RemoteSigned or unrestricted policy)
-irm [https://raw.githubusercontent.com/DeveloperXHarsh/Xary/main/install.ps1](https://raw.githubusercontent.com/DeveloperXHarsh/Xary/main/install.ps1) | iex
+irm https://raw.githubusercontent.com/DeveloperXHarsh/Xary/main/install.ps1 | iex
 ```
 
 **Via Package Managers:**
@@ -33,7 +33,7 @@ irm [https://raw.githubusercontent.com/DeveloperXHarsh/Xary/main/install.ps1](ht
 winget install DeveloperXHarsh.Xary
 
 # Scoop Package Manager
-scoop bucket add xary [https://github.com/DeveloperXHarsh/scoop-xary](https://github.com/DeveloperXHarsh/scoop-xary)
+scoop bucket add xary https://github.com/DeveloperXHarsh/scoop-xary
 scoop install xary
 ```
 
